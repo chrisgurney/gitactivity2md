@@ -1,8 +1,12 @@
 # To get started: pip install github; pip install PyGithub
 # Tokens here: https://github.com/settings/tokens
 
+# import sys
+# print(f"Environment:\n{sys.version}\n{sys.path}\n")
+
 import argparse
 import os
+import time
 import traceback
 from datetime import datetime
 from dateutil.relativedelta import *
@@ -131,12 +135,16 @@ def print_commit(commit):
 # MAIN
 # #############################################################################
 
+start_time = time.time()
+
 past_time = None
+past_datetime = None
 if ARG_RANGE != None:
     past_time = get_past_time(ARG_RANGE)
     if past_time == "Wrong date range format":
         print("Error: " + past_time + ": " + ARG_RANGE)
         exit()
+    past_datetime = datetime.fromtimestamp(past_time)
     if DEBUG: print("\nDATE:\n{} -> {}".format(ARG_RANGE,past_time))
 
 # Create a GitHub instance
@@ -160,12 +168,18 @@ if DEBUG: print(f"Repository: {repo.name}")
 # list pull requests for the repository
 prs = repo.get_pulls(state="all", sort="created", direction="desc")
 for pr in prs:
-    print(f"{repo.name} // PR #{pr.number}: {pr.title} • {pr.html_url}")
-    commits = pr.get_commits()
-    list_commits(commits)
+    if DEBUG: print(f"{pr.number}: {pr.created_at.timestamp()} >? {past_time}")
+    if pr.created_at.timestamp() > past_time:
+        print(f"{repo.name} // PR #{pr.number}: {pr.title} • {pr.html_url}")
+        commits = pr.get_commits()
+        list_commits(commits)
 
 print(f"{repo.name}")
-commits = repo.get_commits()
+commits = repo.get_commits(since=past_datetime)
 list_commits(commits)
+
+end_time = time.time()
+execution_time = end_time - start_time
+if DEBUG: print(f"github2md: Completed in {round(execution_time, 4)} seconds.")
 
 # TODO: FUTURE? get GitHub issues
