@@ -46,6 +46,8 @@ TODAY = datetime.today()
 
 # TODO: limit on number of results returned
 
+PRINTED_COMMITS = []
+
 # #############################################################################
 # FUNCTIONS
 # #############################################################################
@@ -83,7 +85,17 @@ def get_past_time(str_days_ago):
     past_date = datetime(past_date.year, past_date.month, past_date.day)
     past_time = past_date.timestamp()
 
-    return past_time   
+    return past_time
+
+def indent_string(string_to_indent):
+    '''
+    Indents a multi-line string with tabs.
+    '''
+
+    lines = string_to_indent.split("\n")
+    indented_lines = ["\t" + line for line in lines]
+    indented_string = "\n".join(indented_lines)
+    return indented_string
 
 def list_commits(commits):
     results = 0
@@ -92,8 +104,12 @@ def list_commits(commits):
         # only show commits up to the given range (if provided)
         if past_time and commit_datetime.timestamp() < past_time:
             break
-        # TODO: ignore merges?
+        # ignore merges (quick check: if commit has more than one parent)
         if len(commit.commit.parents) > 1:
+            continue
+        # don't show commit if we've already shown it
+        if commit.commit.sha in PRINTED_COMMITS:
+            if DEBUG: print(f"  - SKIPPING {commit.commit.sha}")
             continue
         print_commit(commit)
         results += 1
@@ -105,8 +121,11 @@ def list_commits(commits):
 def print_commit(commit):
     commit_message = commit.commit.message
     commit_datetime = commit.commit.author.date
-    print(f"- {repo.name} // {commit_message}")
-    if DEBUG: print(f"  - {commit_datetime.astimezone()} -> {commit_datetime.astimezone().timestamp()}")
+    print(f"  - {commit_message}")
+    PRINTED_COMMITS.append(commit.commit.sha)
+    if DEBUG: print(f"    - {commit.commit.sha}")
+    if DEBUG: print(f"    - {commit_datetime.astimezone()} -> {commit_datetime.astimezone().timestamp()}")
+    if DEBUG: print(f"    - Parent(s): {commit.commit.parents}")
 
 # #############################################################################
 # MAIN
@@ -141,11 +160,11 @@ if DEBUG: print(f"Repository: {repo.name}")
 # list pull requests for the repository
 prs = repo.get_pulls(state="all", sort="created", direction="desc")
 for pr in prs:
-    print(f"PR #{pr.number}: {pr.title}")
+    print(f"{repo.name} // PR #{pr.number}: {pr.title} • {pr.html_url}")
     commits = pr.get_commits()
     list_commits(commits)
 
-print("")
+print(f"{repo.name}")
 commits = repo.get_commits()
 list_commits(commits)
 
