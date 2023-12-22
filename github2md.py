@@ -29,9 +29,8 @@ parser.add_argument('--debug', default=False, action='store_true', help='If set 
 parser.add_argument('--range', help='Relative date range to get Git activity for (e.g., "today", "1 day ago", "1 week ago"). Activity is relative to midnight of the day requested.')
 parser.add_argument('--repo', help='')
 
-# TODO: accept a list of repo names:
-    # https://stackoverflow.com/questions/15753701/how-can-i-pass-a-list-as-a-command-line-argument-with-argparse
-# TODO repo arg default: get all public repos for user, otherwise?
+# TODO: implement support for multiple repos
+# parser.add_argument('--repos', nargs='+', help='') 
 
 args = parser.parse_args()
 
@@ -86,6 +85,29 @@ def get_past_time(str_days_ago):
 
     return past_time   
 
+def list_commits(commits):
+    results = 0
+    for commit in commits:
+        commit_datetime = commit.commit.author.date
+        # only show commits up to the given range (if provided)
+        if past_time and commit_datetime.timestamp() < past_time:
+            break
+        # TODO: ignore merges?
+        if len(commit.commit.parents) > 1:
+            continue
+        print_commit(commit)
+        results += 1
+
+    if results == 0:
+        print(f"No commits to show")
+        exit(0)
+
+def print_commit(commit):
+    commit_message = commit.commit.message
+    commit_datetime = commit.commit.author.date
+    print(f"- {repo.name} // {commit_message}")
+    if DEBUG: print(f"  - {commit_datetime.astimezone()} -> {commit_datetime.astimezone().timestamp()}")
+
 # #############################################################################
 # MAIN
 # #############################################################################
@@ -114,34 +136,17 @@ except Exception as e:
 
 if DEBUG: print(f"Repository: {repo.name}")
 
-# TODO: get PRs and list commits under each PR
-
-# List pull requests for the repository
-prs = repo.get_pulls(state="all", sort="created", direction="desc")
-
-# TODO: show PRs, and commits under each PR
-for pr in prs:
-    print(f"PR #{pr.number}: {pr.title}")
-    pr_commits = pr.get_commits()
-    # TODO: list PR commits
-
 # TODO: show dates as headings, or option to show within each line (like things2md)
 
-results = 0
-repo_commits = repo.get_commits()
-if repo_commits:
-    for repo_commit in repo_commits:
-        commit_message = repo_commit.commit.message
-        commit_datetime = repo_commit.commit.author.date
-        # only show commits up to the given range (if provided)
-        if past_time and commit_datetime.timestamp() < past_time:
-            break   
-        print(f"- {repo.name} // {commit_message}")
-        if DEBUG: print(f"  - {commit_datetime.astimezone()} -> {commit_datetime.astimezone().timestamp()}")
-        results += 1
+# list pull requests for the repository
+prs = repo.get_pulls(state="all", sort="created", direction="desc")
+for pr in prs:
+    print(f"PR #{pr.number}: {pr.title}")
+    commits = pr.get_commits()
+    list_commits(commits)
 
-if results == 0:
-    print(f"No activity for the provided range: {ARG_RANGE}")
-    exit(0)
+print("")
+commits = repo.get_commits()
+list_commits(commits)
 
 # TODO: FUTURE? get GitHub issues
