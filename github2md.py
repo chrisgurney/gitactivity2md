@@ -6,6 +6,7 @@
 
 import argparse
 import os
+import sys
 import time
 import traceback
 from datetime import datetime
@@ -135,6 +136,8 @@ def print_commit(commit):
 # MAIN
 # #############################################################################
 
+sys.stderr.write("github2md: Fetching results...\n")
+
 start_time = time.time()
 
 past_time = None
@@ -181,5 +184,7 @@ list_commits(commits)
 end_time = time.time()
 execution_time = end_time - start_time
 if DEBUG: print(f"github2md: Completed in {round(execution_time, 4)} seconds.")
+
+sys.stderr.write(f"Completed in {round(execution_time, 4)} seconds\n")
 
 # TODO: FUTURE? get GitHub issues
