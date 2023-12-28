@@ -43,7 +43,7 @@ ARG_REPO = args.repo
 ARG_REPOS = args.repos
 
 if ARG_RANGE == None:
-    print("ERROR: Range argument required")
+    print("ERROR: --range argument required")
     parser.print_help()
     exit(0)
 
@@ -51,7 +51,7 @@ if ARG_REPOS == None:
     if ARG_REPO:
         ARG_REPOS = [ARG_REPO]
     else:
-        print("ERROR: Repo or repos argument required")
+        print("ERROR: --repo or --repos argument required")
         parser.print_help()
         exit(0)
 
