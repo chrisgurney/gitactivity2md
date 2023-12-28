@@ -34,7 +34,7 @@ parser.add_argument('--debug', default=False, action='store_true', help='If set 
 parser.add_argument('--range', help='Relative date range to get Git activity for (e.g., "today", "1 day ago", "1 week ago"). Activity is relative to midnight of the day requested.')
 parser.add_argument('--repo', help='Repository to get Git activity for')
 
-# TODO: implement support for multiple repos
+# TODO: support for multiple repos
 # parser.add_argument('--repos', nargs='+', help='') 
 
 args = parser.parse_args()
@@ -52,6 +52,7 @@ if ARG_RANGE == None and (ARG_REPO == None):
 # #############################################################################
 
 TODAY = datetime.today()
+TODAY_TIMESTAMP = datetime(TODAY.year, TODAY.month, TODAY.day).timestamp()
 
 # TODO: limit on number of results returned
 
@@ -133,6 +134,9 @@ def output_commit(commit):
     commit_message = commit.commit.message
     commit_datetime = commit.commit.author.date
     output += f"- {commit_message}"
+    # add a date if the commit is older than today
+    if commit_datetime.timestamp() < TODAY_TIMESTAMP:
+        output += f" • {commit_datetime.date().isoformat()}"
     OUTPUTTED_COMMITS.append(commit.commit.sha)
     if DEBUG: print(f"    - {commit.commit.sha}")
     if DEBUG: print(f"    - {commit_datetime.astimezone()} -> {commit_datetime.astimezone().timestamp()}")
@@ -143,7 +147,7 @@ def output_commit(commit):
 # MAIN
 # #############################################################################
 
-sys.stderr.write("github2md: Fetching results...\n")
+sys.stderr.write("Fetching results...\n")
 
 start_time = time.time()
 
@@ -173,28 +177,26 @@ except Exception as e:
 
 if DEBUG: print(f"Repository: {repo.name}")
 
-# TODO: show dates as headings, or option to show within each line (like things2md)
+# TODO: option to show dates as headings, or show within each line, or simple (no dates)
 
 # list pull requests for the repository
 prs = repo.get_pulls(state="all", sort="created", direction="desc")
 for pr in prs:
     if DEBUG: print(f"{pr.number}: {pr.created_at.timestamp()} >? {past_time}")
     if pr.created_at.timestamp() > past_time:
-        print(f"- [{pr.title}]({pr.html_url})")
+        print(f"- {repo.name} // [{pr.title}]({pr.html_url})")
         commits = pr.get_commits()
-        commits_output = output_commits(commits)
-        commits_indented = indent_string(commits_output)
-        print(commits_indented)
+        print(indent_string(output_commits(commits)))
 
 commits = repo.get_commits(since=past_datetime)
 if commits:
-    print(f"{repo.name}")
-    print(output_commits(commits), end="")
+    print(f"- {repo.name}")
+    print(indent_string(output_commits(commits)))
 
 end_time = time.time()
 execution_time = end_time - start_time
-if DEBUG: print(f"github2md: Completed in {round(execution_time, 4)} seconds.")
+if DEBUG: print(f"github2md: Completed in {round(execution_time, 2)}s")
 
-sys.stderr.write(f"Completed in {round(execution_time, 4)} seconds\n")
+sys.stderr.write(f"Completed in {round(execution_time, 2)}s\n")
 
 # TODO: FUTURE? get GitHub issues
