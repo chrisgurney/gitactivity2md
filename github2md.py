@@ -33,19 +33,27 @@ parser = argparse.ArgumentParser(description='Script that returns a list of PRs 
 parser.add_argument('--debug', default=False, action='store_true', help='If set will show script debug information')
 parser.add_argument('--range', help='Relative date range to get Git activity for (e.g., "today", "1 day ago", "1 week ago"). Activity is relative to midnight of the day requested.')
 parser.add_argument('--repo', help='Repository to get Git activity for')
-
-# TODO: support for multiple repos
-# parser.add_argument('--repos', nargs='+', help='') 
+parser.add_argument('--repos', nargs='+', help='Repositories to get Git activity for') 
 
 args = parser.parse_args()
 
 DEBUG = args.debug
 ARG_RANGE = args.range
 ARG_REPO = args.repo
+ARG_REPOS = args.repos
 
-if ARG_RANGE == None and (ARG_REPO == None):
+if ARG_RANGE == None:
+    print("ERROR: Range argument required")
     parser.print_help()
     exit(0)
+
+if ARG_REPOS == None:
+    if ARG_REPO:
+        ARG_REPOS = [ARG_REPO]
+    else:
+        print("ERROR: Repo or repos argument required")
+        parser.print_help()
+        exit(0)
 
 # #############################################################################
 # GLOBALS
@@ -109,7 +117,6 @@ def indent_string(string_to_indent):
 
 def output_commits(commits):
     output = ""
-    results = 0
     for commit in commits:
         commit_datetime = commit.commit.author.date
         # only show commits up to the given range (if provided)
@@ -123,10 +130,6 @@ def output_commits(commits):
             if DEBUG: print(f"  - SKIPPING {commit.commit.sha}")
             continue
         output += output_commit(commit) + "\n"
-        results += 1
-    if results == 0:
-        sys.stderr.write(f"No commits to show\n")
-        exit(0)
     return output
 
 def output_commit(commit):
@@ -167,31 +170,37 @@ user = g.get_user(GIT_USERNAME)
 
 # #############################################################################
 
-# TODO: if multiple repos provided, iterate over them
+if DEBUG: print(f"ARG_REPOS: {ARG_REPOS}")
 
-try:
-    repo = user.get_repo(ARG_REPO)
-except Exception as e:
-    print(traceback.print_exc())
-    exit()
+for repo_name in ARG_REPOS:
+    try:
+        if DEBUG: print(f"Getting repo: {repo_name}")
+        repo = user.get_repo(repo_name)
+    except Exception as e:
+        print(traceback.print_exc())
+        exit()
 
-if DEBUG: print(f"Repository: {repo.name}")
+    if DEBUG: print(f"Repository: {repo.name}")
 
-# TODO: option to show dates as headings, or show within each line, or simple (no dates)
+    # TODO: option to show dates as headings, or show within each line, or simple (no dates)
 
-# list pull requests for the repository
-prs = repo.get_pulls(state="all", sort="created", direction="desc")
-for pr in prs:
-    if DEBUG: print(f"{pr.number}: {pr.created_at.timestamp()} >? {past_time}")
-    if pr.created_at.timestamp() > past_time:
-        print(f"- {repo.name} // [{pr.title}]({pr.html_url})")
-        commits = pr.get_commits()
-        print(indent_string(output_commits(commits)))
+    # list pull requests for the repository
+    prs = repo.get_pulls(state="all", sort="created", direction="desc")
+    for pr in prs:
+        if DEBUG: print(f"{pr.number}: {pr.created_at.timestamp()} >? {past_time}")
+        if pr.created_at.timestamp() > past_time:
+            print(f"- {repo.name} // [{pr.title}]({pr.html_url})")
+            commits = pr.get_commits()
+            print(indent_string(output_commits(commits)))
 
-commits = repo.get_commits(since=past_datetime)
-if commits:
-    print(f"- {repo.name}")
-    print(indent_string(output_commits(commits)))
+    commits = repo.get_commits(since=past_datetime)
+    if commits:
+        commits_output = output_commits(commits)
+        if commits_output:
+            print(f"- {repo.name}")
+            print(indent_string(commits_output))
+        else:
+            sys.stderr.write(f"{repo.name}: No commits to show in the provided range\n")
 
 end_time = time.time()
 execution_time = end_time - start_time
