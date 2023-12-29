@@ -136,13 +136,17 @@ def output_commit(commit):
     output = ""
     commit_message = commit.commit.message
     commit_datetime = commit.commit.author.date
+    commit_timestamp = commit_datetime.timestamp()
     output += f"- {commit_message}"
     # add a date if the commit is older than today
-    if commit_datetime.timestamp() < TODAY_TIMESTAMP:
-        output += f" • {commit_datetime.date().isoformat()}"
+    if DEBUG: print(f"{commit_timestamp} <? {TODAY_TIMESTAMP}")
+    if commit_timestamp < TODAY_TIMESTAMP:
+        output += f" • {datetime.fromtimestamp(commit_timestamp).date().isoformat()}"
     OUTPUTTED_COMMITS.append(commit.commit.sha)
+    if DEBUG: print(f"{output}")
     if DEBUG: print(f"    - {commit.commit.sha}")
     if DEBUG: print(f"    - {commit_datetime.astimezone()} -> {commit_datetime.astimezone().timestamp()}")
+    if DEBUG: print(f"    - {datetime.fromtimestamp(commit_timestamp).date().isoformat()}")
     if DEBUG: print(f"    - Parent(s): {commit.commit.parents}")
     return output
 
