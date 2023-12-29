@@ -200,7 +200,7 @@ for repo_name in ARG_REPOS:
             print(f"- {repo.name}")
             print(indent_string(commits_output))
         else:
-            sys.stderr.write(f"{repo.name}: No commits in the provided range\n")
+            sys.stderr.write(f"{repo.name}: Nothing in the provided range...\n")
 
 end_time = time.time()
 execution_time = end_time - start_time
