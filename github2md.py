@@ -32,14 +32,12 @@ parser = argparse.ArgumentParser(description='Script that returns a list of PRs 
 
 parser.add_argument('--debug', default=False, action='store_true', help='If set will show script debug information.')
 parser.add_argument('--range', help='Relative date range to get Git activity for (e.g., "today", "1 day ago", "1 week ago"). Activity is relative to midnight of the day requested.')
-parser.add_argument('--repo', help='Repository to get Git activity for.')
 parser.add_argument('--repos', nargs='+', help='Repositories to get Git activity for.')
 
 args = parser.parse_args()
 
 DEBUG = args.debug
 ARG_RANGE = args.range
-ARG_REPO = args.repo
 ARG_REPOS = args.repos
 
 if ARG_RANGE == None:
@@ -48,12 +46,9 @@ if ARG_RANGE == None:
     exit(0)
 
 if ARG_REPOS == None:
-    if ARG_REPO:
-        ARG_REPOS = [ARG_REPO]
-    else:
-        print("ERROR: --repo or --repos argument required")
-        parser.print_help()
-        exit(0)
+    print("ERROR: --repo or --repos argument required")
+    parser.print_help()
+    exit(0)
 
 # #############################################################################
 # GLOBALS

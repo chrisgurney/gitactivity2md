@@ -23,7 +23,6 @@ Run without any parameters to see the full list of arguments available:
 --debug               If set will show script debug information.
 --range RANGE         Relative date range to get Git activity for (e.g., "today", "1 day ago", "1
                       week ago"). Activity is relative to midnight of the day requested.
---repo REPO           Repository to get Git activity for.
 --repos REPOS [REPOS ...]
                       Repositories to get Git activity for.
 ```
@@ -37,7 +36,7 @@ Show PRs and individual commits under two repos, that were checked in today.
 python3 github2md.py --repos myrepo myotherrepo --range "today"
 ```
 
-Show PRs and individual commits under one repo, that were checked in over the last couple days.
+Show PRs and individual commits for a single repo, that were checked in over the last couple days.
 ```
-python3 github2md.py --repo myrepo --range "1 day ago"
+python3 github2md.py --repos myrepo --range "1 day ago"
 ```
