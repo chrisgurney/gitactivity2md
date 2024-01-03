@@ -30,10 +30,10 @@ GIT_USERNAME = os.getenv("GIT_USERNAME")
 
 parser = argparse.ArgumentParser(description='Script that returns a list of PRs and commits in markdown.')
 
-parser.add_argument('--debug', default=False, action='store_true', help='If set will show script debug information')
+parser.add_argument('--debug', default=False, action='store_true', help='If set will show script debug information.')
 parser.add_argument('--range', help='Relative date range to get Git activity for (e.g., "today", "1 day ago", "1 week ago"). Activity is relative to midnight of the day requested.')
-parser.add_argument('--repo', help='Repository to get Git activity for')
-parser.add_argument('--repos', nargs='+', help='Repositories to get Git activity for') 
+parser.add_argument('--repo', help='Repository to get Git activity for.')
+parser.add_argument('--repos', nargs='+', help='Repositories to get Git activity for.')
 
 args = parser.parse_args()
 
