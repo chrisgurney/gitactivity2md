@@ -27,7 +27,7 @@ Run without any parameters to see the full list of arguments available:
                       Repositories to get Git activity for.
 ```
 
-The `--range` parameter is required, at a minimum.
+The `--range` and `--repos` parameters are required, at a minimum.
 
 # Examples
 
