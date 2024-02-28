@@ -193,8 +193,8 @@ for repo_name in ARG_REPOS:
     prs = repo.get_pulls(state="all", sort="created", direction="desc")
     for pr in prs:
         if DEBUG: print(f"{pr.number}: {pr.created_at} >=? {past_datetime}")
-        if pr.created_at >= past_datetime:
-            if ARG_DATE and pr.created_at > end_datetime:
+        if pr.created_at.astimezone() >= past_datetime:
+            if ARG_DATE and pr.created_at.astimezone() > end_datetime:
                 continue
             print(f"- {repo.name} // [{pr.title}]({pr.html_url})")
             commits = pr.get_commits()
