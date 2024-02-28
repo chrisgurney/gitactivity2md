@@ -1,4 +1,4 @@
-Script that fetches a list of PRs and commits.
+Script that fetches a list of PRs and commit in Markdown format.
 
 # Installation
 
