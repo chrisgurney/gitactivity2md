@@ -21,22 +21,27 @@ Run without any parameters to see the full list of arguments available:
 
 ```
 --debug               If set will show script debug information.
+--date DATE           Date to get completed tasks for, in ISO format (e.g., 2023-10-07).
 --range RANGE         Relative date range to get Git activity for (e.g., "today", "1 day ago", "1
                       week ago"). Activity is relative to midnight of the day requested.
 --repos REPOS [REPOS ...]
                       Repositories to get Git activity for.
 ```
 
-The `--range` and `--repos` parameters are required, at a minimum.
+The (`--date` or `--range`) and `--repos` parameters are required, at a minimum.
+
+Notes:
+
+- Merges are ignored (check is based on whether commit has more than one parent).
 
 # Examples
 
-Show PRs and individual commits under two repos, that were checked in today.
+Show PRs and individual commits under a single repo, that was checked in on 2023-02-27.
 ```
-python3 github2md.py --repos myrepo myotherrepo --range "today"
+python3 github2md.py --repos myrepo --date 2023-02-27
 ```
 
-Show PRs and individual commits for a single repo, that were checked in over the last couple days.
+Show PRs and individual commits under two repos, that were checked in since yesterday.
 ```
-python3 github2md.py --repos myrepo --range "1 day ago"
+python3 github2md.py --repos myrepo myotherrepo --range "yesterday"
 ```
