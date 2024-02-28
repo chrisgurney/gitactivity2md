@@ -38,10 +38,10 @@ Notes:
 
 Show PRs and individual commits under a single repo, that was checked in on 2023-02-27.
 ```
-python3 github2md.py --repos myrepo --date 2023-02-27
+python3 gitactivity2md.py --repos myrepo --date 2023-02-27
 ```
 
 Show PRs and individual commits under two repos, that were checked in since yesterday.
 ```
-python3 github2md.py --repos myrepo myotherrepo --range "yesterday"
+python3 gitactivity2md.py --repos myrepo myotherrepo --range "yesterday"
 ```
