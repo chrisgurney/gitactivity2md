@@ -6,6 +6,7 @@
 # print(f"Environment:\n{sys.version}\n{sys.path}\n")
 
 import argparse
+import errno
 import os
 import sys
 import time
@@ -44,14 +45,14 @@ ARG_RANGE = args.range
 ARG_REPOS = args.repos
 
 if ARG_DATE == None and ARG_RANGE == None:
-    print("ERROR: --date or --range argument is required")
+    sys.stderr.write(f"gitactivity2md.py: --date or --range argument is required\n")
     parser.print_help()
-    exit(0)
+    exit(errno.EINVAL) # Invalid argument error code
 
 if ARG_REPOS == None:
-    print("ERROR: --repo or --repos argument is required")
+    sys.stderr.write(f"gitactivity2md.py: --repo or --repos argument is required\n")
     parser.print_help()
-    exit(0)
+    exit(errno.EINVAL) # Invalid argument error code
 
 # #############################################################################
 # GLOBALS
@@ -166,8 +167,8 @@ if ARG_DATE != None:
 elif ARG_RANGE != None:
     past_datetime = get_past_datetime(ARG_RANGE)
     if past_datetime is None:
-        print("Error: Wrong date range format: " + ARG_RANGE)
-        exit()
+        sys.stderr.write(f"gitactivity2md.py: Error: Invalid date range: {ARG_RANGE}\n")
+        exit(errno.EINVAL) # Invalid argument error code
     if DEBUG: print(f"Date range ({ARG_RANGE}): On and after {past_datetime}")
 
 # Create a GitHub instance
@@ -183,8 +184,10 @@ for repo_name in ARG_REPOS:
         if DEBUG: print(f"Getting repo: {repo_name}")
         repo = user.get_repo(repo_name)
     except Exception as e:
+        # TODO: sys.stderr.write(f"gitactivity2md.py: {traceback.print_exc()}")
         print(traceback.print_exc())
-        exit()
+        # TODO: find appropriate error code to use here
+        exit(1)
 
     if DEBUG: print(f"Repository: {repo.name}")
 
