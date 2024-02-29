@@ -88,7 +88,7 @@ def get_past_datetime(str_days_ago):
     elif splitted[1].lower() in ['yrs', 'yr', 'years', 'year', 'y']:
         past_date = TODAY_DATETIME - relativedelta(years=int(splitted[0]))
     else:
-        return("Wrong date range format")
+        return None
 
     # get midnight of the day requested, to ensure we get all activity on that day
     past_date = past_date.replace(hour=0, minute=0, second=0)
