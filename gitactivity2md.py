@@ -135,7 +135,7 @@ def output_commit(commit):
     output = ""
     commit_message = commit.commit.message
     commit_datetime = commit.commit.author.date.astimezone()
-    output += f"- {commit_message}"
+    output += f"- {commit_message} [↗]({commit.commit.html_url})"
     # add a date if the commit is older than today
     if ARG_RANGE:
         if DEBUG: print(f"{commit_datetime} <? {TODAY_DATETIME}")
@@ -214,7 +214,7 @@ for repo_name in ARG_REPOS:
     
     if commits_output:
         if commits_output:
-            print(f"- {repo.name}")
+            print(f"- [{repo.name}]({repo.html_url})")
             print(indent_string(commits_output))
         else:
             sys.stderr.write(f"{repo.name}: Nothing in the provided range...\n")
