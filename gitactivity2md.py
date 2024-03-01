@@ -213,11 +213,10 @@ for repo_name in ARG_REPOS:
         commits_output = output_commits(commits, past_datetime)
     
     if commits_output:
-        if commits_output:
-            print(f"- [{repo.name}]({repo.html_url})")
-            print(indent_string(commits_output))
-        else:
-            sys.stderr.write(f"{repo.name}: Nothing in the provided range...\n")
+        print(f"- [{repo.name}]({repo.html_url})")
+        print(indent_string(commits_output))
+    else:
+        sys.stderr.write(f"{repo.name}: Nothing in the provided range...\n")
 
 exec_end_time = time.time()
 execution_time = exec_end_time - exec_start_time
