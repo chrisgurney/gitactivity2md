@@ -45,12 +45,12 @@ ARG_RANGE = args.range
 ARG_REPOS = args.repos
 
 if ARG_DATE == None and ARG_RANGE == None:
-    sys.stderr.write(f"gitactivity2md.py: --date or --range argument is required\n")
+    sys.stderr.write(f"gitactivity2md: --date or --range argument is required\n")
     parser.print_help()
     exit(errno.EINVAL) # Invalid argument error code
 
 if ARG_REPOS == None:
-    sys.stderr.write(f"gitactivity2md.py: --repo or --repos argument is required\n")
+    sys.stderr.write(f"gitactivity2md: --repo or --repos argument is required\n")
     parser.print_help()
     exit(errno.EINVAL) # Invalid argument error code
 
@@ -167,7 +167,7 @@ if ARG_DATE != None:
 elif ARG_RANGE != None:
     past_datetime = get_past_datetime(ARG_RANGE)
     if past_datetime is None:
-        sys.stderr.write(f"gitactivity2md.py: Error: Invalid date range: {ARG_RANGE}\n")
+        sys.stderr.write(f"gitactivity2md: Error: Invalid date range: {ARG_RANGE}\n")
         exit(errno.EINVAL) # Invalid argument error code
     if DEBUG: print(f"Date range ({ARG_RANGE}): On and after {past_datetime}")
 
@@ -184,7 +184,7 @@ for repo_name in ARG_REPOS:
         if DEBUG: print(f"Getting repo: {repo_name}")
         repo = user.get_repo(repo_name)
     except Exception as e:
-        # TODO: sys.stderr.write(f"gitactivity2md.py: {traceback.print_exc()}")
+        # TODO: sys.stderr.write(f"gitactivity2md: {traceback.print_exc()}")
         print(traceback.print_exc())
         # TODO: find appropriate error code to use here
         exit(1)
@@ -221,8 +221,8 @@ for repo_name in ARG_REPOS:
 
 exec_end_time = time.time()
 execution_time = exec_end_time - exec_start_time
-if DEBUG: print(f"github2md: Completed in {round(execution_time, 2)}s")
+if DEBUG: print(f"gitactivity2md: Completed in {round(execution_time, 2)}s")
 
-sys.stderr.write(f"Completed in {round(execution_time, 2)}s\n")
+sys.stderr.write(f"gitactivity2md: Completed in {round(execution_time, 2)}s\n")
 
 # TODO: FUTURE? get GitHub issues
