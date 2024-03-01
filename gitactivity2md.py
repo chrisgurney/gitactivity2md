@@ -153,7 +153,7 @@ def output_commit(commit):
 # MAIN
 # #############################################################################
 
-sys.stderr.write("Fetching results...\n")
+sys.stderr.write("gitactivity2md: Fetching results...\n")
 
 exec_start_time = time.time()
 
@@ -223,6 +223,6 @@ exec_end_time = time.time()
 execution_time = exec_end_time - exec_start_time
 if DEBUG: print(f"gitactivity2md: Completed in {round(execution_time, 2)}s")
 
-sys.stderr.write(f"gitactivity2md: Completed in {round(execution_time, 2)}s\n")
+sys.stderr.write(f"Completed in {round(execution_time, 2)}s\n")
 
 # TODO: FUTURE? get GitHub issues
