@@ -96,17 +96,17 @@ def get_past_datetime(str_days_ago):
 
     return past_date
 
-def indent_string(string_to_indent):
+def indent_string(string_to_indent, indent_level = 1):
     '''
     Indents a multi-line string with tabs.
     '''
 
     lines = string_to_indent.strip().split("\n")
-    indented_lines = ["\t" + line for line in lines]
+    indented_lines = ["\t" * indent_level + line for line in lines]
     indented_string = "\n".join(indented_lines)
     return indented_string
 
-def output_commits(commits, since_datetime, until_datetime = None):
+def format_commits(commits, since_datetime, until_datetime = None):
     output = ""
     for commit in commits:
         commit_datetime = commit.commit.author.date
@@ -128,10 +128,10 @@ def output_commits(commits, since_datetime, until_datetime = None):
         if commit.commit.sha in OUTPUTTED_COMMITS:
             if DEBUG: print(f"  - SKIPPING {commit.commit.sha}")
             continue
-        output += output_commit(commit) + "\n"
+        output += format_commit(commit) + "\n"
     return output
 
-def output_commit(commit):
+def format_commit(commit):
     output = ""
     commit_message = commit.commit.message
     commit_datetime = commit.commit.author.date.astimezone()
@@ -158,6 +158,8 @@ sys.stderr.write("gitactivity2md: Fetching results...\n")
 exec_start_time = time.time()
 
 past_datetime = None
+end_datetime = None
+end_datetime_plus_one = None
 if ARG_DATE != None:
     past_datetime = datetime.fromisoformat(ARG_DATE).astimezone()
     past_datetime = past_datetime.replace(hour=0, minute=0, second=0)
@@ -184,16 +186,31 @@ for repo_name in ARG_REPOS:
         if DEBUG: print(f"Getting repo: {repo_name}")
         repo = user.get_repo(repo_name)
     except Exception as e:
-        # TODO: sys.stderr.write(f"gitactivity2md: {traceback.print_exc()}")
-        print(traceback.print_exc())
-        # TODO: find appropriate error code to use here
+        sys.stderr.write(f"gitactivity2md: {traceback.print_exc()}")
         exit(1)
 
     if DEBUG: print(f"Repository: {repo.name}")
 
     # TODO: option to show dates as headings, or show within each line, or simple (no dates)
 
-    # unfortunately we have to get all pull requests for the repository
+    # get activity on branches
+    branches = repo.get_branches()
+    branches_output = {}
+    for branch in branches:
+        if ARG_DATE:
+            commits = repo.get_commits(sha=branch.name, since=past_datetime, until=end_datetime_plus_one)
+        elif ARG_RANGE:
+            commits = repo.get_commits(sha=branch.name, since=past_datetime)
+        branches_output[branch.name] = format_commits(commits, past_datetime, end_datetime)
+
+    if branches_output:
+        for branch_name, branch_output in branches_output.items():
+            print(f"- [{repo.name}]({repo.html_url}): {branch_name}")
+            print(indent_string(branch_output))
+    else:
+        sys.stderr.write(f"{repo.name}: Nothing in the provided range...\n")
+
+    # for pull requests, unfortunately we have to get all of them for the repository
     prs = repo.get_pulls(state="all", sort="created", direction="desc")
     for pr in prs:
         if DEBUG: print(f"{pr.number}: {pr.created_at} >=? {past_datetime}")
@@ -202,21 +219,7 @@ for repo_name in ARG_REPOS:
                 continue
             print(f"- {repo.name} // [{pr.title}]({pr.html_url})")
             commits = pr.get_commits()
-            print(indent_string(output_commits(commits)))
-
-    commits_output = None
-    if ARG_DATE:
-        commits = repo.get_commits(since=past_datetime, until=end_datetime_plus_one)
-        commits_output = output_commits(commits, past_datetime, end_datetime)
-    elif ARG_RANGE:
-        commits = repo.get_commits(since=past_datetime)
-        commits_output = output_commits(commits, past_datetime)
-    
-    if commits_output:
-        print(f"- [{repo.name}]({repo.html_url})")
-        print(indent_string(commits_output))
-    else:
-        sys.stderr.write(f"{repo.name}: Nothing in the provided range...\n")
+            print(indent_string(format_commits(commits)))
 
 exec_end_time = time.time()
 execution_time = exec_end_time - exec_start_time
