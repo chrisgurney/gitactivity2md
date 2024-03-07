@@ -218,7 +218,7 @@ for repo_name in ARG_REPOS:
         if pr.created_at.astimezone() >= past_datetime:
             if ARG_DATE and pr.created_at.astimezone() > end_datetime:
                 continue
-            print(f"- {repo.name} // [{pr.title}]({pr.html_url})")
+            print(f"- [{repo.name}]({repo.html_url}) (PR): [{pr.title}]({pr.html_url})")
             commits = pr.get_commits()
             print(indent_string(format_commits(commits)))
 
