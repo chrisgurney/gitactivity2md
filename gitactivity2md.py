@@ -25,6 +25,7 @@ load_dotenv()
 # get configuration from .env
 GIT_PERSONAL_ACCESS_TOKEN = os.getenv("GIT_PERSONAL_ACCESS_TOKEN")
 GIT_USERNAME = os.getenv("GIT_USERNAME")
+SKIP_COMMIT = os.getenv("SKIP_COMMIT")
 
 # #############################################################################
 # CLI ARGUMENTS
@@ -109,6 +110,9 @@ def indent_string(string_to_indent, indent_level = 1):
 def format_commits(commits, since_datetime, until_datetime = None):
     output = ""
     for commit in commits:
+        commit_message = commit.commit.message
+        if SKIP_COMMIT and commit_message.startswith(SKIP_COMMIT):
+            continue
         commit_datetime = commit.commit.author.date
         # convert to local time before doing comparisons
         commit_datetime = commit_datetime.astimezone()
