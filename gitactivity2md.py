@@ -25,7 +25,7 @@ load_dotenv()
 # get configuration from .env
 GIT_PERSONAL_ACCESS_TOKEN = os.getenv("GIT_PERSONAL_ACCESS_TOKEN")
 GIT_USERNAME = os.getenv("GIT_USERNAME")
-SKIP_COMMIT = os.getenv("SKIP_COMMIT")
+SKIP_COMMITS = os.getenv("SKIP_COMMITS").split(",") if os.getenv("SKIP_COMMITS") else ""
 
 # #############################################################################
 # CLI ARGUMENTS
@@ -111,7 +111,7 @@ def format_commits(commits, since_datetime, until_datetime = None):
     output = ""
     for commit in commits:
         commit_message = commit.commit.message
-        if SKIP_COMMIT and commit_message.startswith(SKIP_COMMIT):
+        if SKIP_COMMITS and any(s in commit_message for s in SKIP_COMMITS):
             continue
         commit_datetime = commit.commit.author.date
         # convert to local time before doing comparisons
