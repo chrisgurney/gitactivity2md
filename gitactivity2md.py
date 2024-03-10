@@ -210,7 +210,7 @@ for repo_name in ARG_REPOS:
     if branches_output:
         for branch_name, branch_output in branches_output.items():
             if branch_output:
-                print(f"- [{repo.name}]({repo.html_url}): {branch_name}")
+                print(f"- [{repo.name}]({repo.html_url}): `{branch_name}`")
                 print(indent_string(branch_output))
     else:
         sys.stderr.write(f"{repo.name}: Nothing in the provided range...\n")
