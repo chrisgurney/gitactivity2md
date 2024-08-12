@@ -49,7 +49,7 @@ Show PRs and individual commits under a single repo, that was checked in on 2023
 ```zsh
 python3 gitactivity2md.py --repos myrepo --date 2023-02-27
 ```
-Or if using a virtual environment:
+...or if using a virtual environment:
 ```zsh
 source /path/to/gitactivity2md/.venv/bin/activate && python3 gitactivity2md.py --repos myrepo --date 2023-02-27
 ```
